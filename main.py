@@ -1,14 +1,19 @@
 import argparse
 import os
+from pathlib import Path
 
 import blessed
+import pygame
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("music_dir", type=str, help="The directory to play music from")
     args = parser.parse_args()
 
-    songs = os.listdir(args.music_dir)
+    pygame.init()
+
+    music_dir = Path(args.music_dir)
+    songs = [song for song in music_dir.iterdir() if not song.is_dir()]
 
     term = blessed.Terminal()
 
@@ -29,15 +34,17 @@ if __name__ == "__main__":
                         selected_song += 1
                 elif val.name == "KEY_ENTER":
                     playing_song = songs[selected_song]
+                    pygame.mixer.music.load(playing_song)
+                    pygame.mixer.music.play(0)
 
             for index, song in enumerate(songs):
                 if index == selected_song:
-                    print(term.underline(song))
+                    print(term.underline(song.name))
                 else:
-                    print(song)
+                    print(song.name)
 
-            if playing_song is not None:
+            if playing_song is not None and pygame.mixer.music.get_busy():
                 print("")
-                print(term.center(f"Now Playing: {playing_song}"))
+                print(term.center(f"Now Playing: {playing_song.name}"))
 
-            val = term.inkey()
+            val = term.inkey(timeout=3)
