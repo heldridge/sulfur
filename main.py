@@ -1,8 +1,11 @@
 import argparse
+import os
 from pathlib import Path
 import time
 
 import blessed
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
 
 
