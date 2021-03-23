@@ -1,4 +1,5 @@
 import argparse
+import math
 from pathlib import Path
 
 import blessed
@@ -11,7 +12,7 @@ def print_progress_bar(term, percentage):
     term.move_xy(0, term.height - 1)
     print("[", end="")
 
-    num_blocks = int(percentage * term.width)
+    num_blocks = math.ceil(percentage * term.width)
     print("\N{FULL BLOCK}" * num_blocks, end="")
     print(" " * (term.width - 2 - num_blocks), end="")
     print("]")
