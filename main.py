@@ -3,6 +3,7 @@ from pathlib import Path
 
 import blessed
 
+from music_database import MusicDatabase
 from music_player import MusicPlayer
 
 
@@ -21,9 +22,7 @@ if __name__ == "__main__":
     parser.add_argument("music_dir", type=str, help="The directory to play music from")
     args = parser.parse_args()
 
-    music_dir = Path(args.music_dir)
-    songs = [song for song in music_dir.iterdir() if not song.is_dir()]
-
+    music_database = MusicDatabase(args.music_dir)
     term = blessed.Terminal()
 
     selected_song = 0
@@ -39,24 +38,24 @@ if __name__ == "__main__":
                     if selected_song > 0:
                         selected_song -= 1
                 elif val.name == "KEY_DOWN":
-                    if selected_song < len(songs) - 1:
+                    if selected_song < len(music_database.songs) - 1:
                         selected_song += 1
 
-            for index, song in enumerate(songs):
+            for index, song in enumerate(music_database.songs):
                 if index == selected_song:
-                    print(term.underline(song.name))
+                    print(term.underline(song["name"]))
                 else:
-                    print(song.name)
+                    print(song["name"])
 
             # Play the song after the interface is printed to prevent empty screens
             # while song loads
             if type(val) != str and val.name == "KEY_ENTER":
-                playing_song = songs[selected_song]
-                music_player.play(playing_song)
+                playing_song = music_database.songs[selected_song]
+                music_player.play(playing_song["path"])
 
             if music_player.is_playing():
                 print("")
-                print(term.center(f"Now Playing: {playing_song.name}"))
+                print(term.center(f"Now Playing: {playing_song['name']}"))
                 print_progress_bar(term, music_player.get_playing_song_percentage())
 
             val = term.inkey(timeout=3)
