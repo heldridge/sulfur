@@ -5,10 +5,17 @@ import pathlib
 import mutagen
 
 
+class Song:
+    def __init__(self, title, path):
+        self.title = title
+        self.path = path
+
+
 class MusicDatabase:
     def __init__(self, path):
         self.allowed_suffixes = {".flac", ".mp3", ".ogg", ".wav"}
         self.artist_tags = {"ARTIST", "TPE1"}
+        self.title_tags = {"TITLE", "TIT2"}
         self.songs = []
         self.artist_map = defaultdict(list)
         self.load_songs(path)
@@ -32,15 +39,22 @@ class MusicDatabase:
                             song_artist = str(artist)
                             break
 
-                    self.artist_map[song_artist].append(
-                        {
-                            "path": p,
-                            "info": mutagen_file.info,
-                        }
-                    )
+                    song_title = "<Unknown>"
+                    for title_tag in self.title_tags:
+                        if title_tag in mutagen_file.tags:
+                            title = mutagen_file.tags[title_tag]
+                            if isinstance(title, list):
+                                title = title[0]
+                            song_title = str(title)
+                            break
+
+                    self.artist_map[song_artist].append(Song(song_title, p))
 
                     self.songs.append({"path": p, "name": file})
 
     def print_all(self):
         for song in self.songs.values():
             print(song)
+
+    def get_artists(self):
+        return self.artist_map.keys()
