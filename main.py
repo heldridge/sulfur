@@ -9,13 +9,14 @@ from music_player import MusicPlayer
 
 
 def print_progress_bar(term, percentage):
-    term.move_xy(0, term.height - 1)
-    print("[", end="")
-
     num_blocks = math.ceil(percentage * term.width)
-    print("\N{FULL BLOCK}" * num_blocks, end="")
-    print(" " * (term.width - 2 - num_blocks), end="")
-    print("]")
+    print(
+        term.move_xy(0, term.height - 1)
+        + "["
+        + "\N{FULL BLOCK}" * num_blocks
+        + " " * (term.width - 2 - num_blocks)
+        + "]",
+    )
 
 
 class ArtistPane:
@@ -130,5 +131,7 @@ if __name__ == "__main__":
                 print("")
                 print(term.center(f"Now Playing: {playing_song.title}"))
                 print_progress_bar(term, music_player.get_playing_song_percentage())
+            else:
+                print(term.move_y(term.height) + "")
 
             val = term.inkey(0.1)
