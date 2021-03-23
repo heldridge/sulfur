@@ -2,6 +2,8 @@ import os
 import pathlib
 import time
 
+import mutagen
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
 
@@ -35,7 +37,14 @@ class MusicPlayer:
         pygame.mixer.music.load(song_path)
         pygame.mixer.music.play(0)
         self.playing_song = song_path
-        self.playing_song_length = pygame.mixer.Sound(song_path).get_length()
+        mutagen_file = mutagen.File(song_path)
+
+        if mutagen_file is not None:
+            self.playing_song_length = mutagen_file.info.length
+        else:
+            # TODO: don't show progress bar when song length can't be identified
+            self.playing_song_length = 999
+
         self.playing_song_start_time = time.time()
 
     def is_playing(self) -> bool:
