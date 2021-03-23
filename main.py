@@ -1,9 +1,20 @@
 import argparse
-import os
 from pathlib import Path
+import time
 
 import blessed
 import pygame
+
+
+def print_progress_bar(term, percentage):
+    term.move_xy(0, term.height - 1)
+    print("[", end="")
+
+    num_blocks = int(percentage * term.width)
+    print("\N{FULL BLOCK}" * num_blocks, end="")
+    print(" " * (term.width - 2 - num_blocks), end="")
+    print("]")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -19,6 +30,8 @@ if __name__ == "__main__":
 
     selected_song = 0
     playing_song = None
+    playing_song_length = None
+    playing_song_start_time = None
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         val = ""
         while val.lower() != "q":
@@ -32,10 +45,6 @@ if __name__ == "__main__":
                 elif val.name == "KEY_DOWN":
                     if selected_song < len(songs) - 1:
                         selected_song += 1
-                elif val.name == "KEY_ENTER":
-                    playing_song = songs[selected_song]
-                    pygame.mixer.music.load(playing_song)
-                    pygame.mixer.music.play(0)
 
             for index, song in enumerate(songs):
                 if index == selected_song:
@@ -43,8 +52,21 @@ if __name__ == "__main__":
                 else:
                     print(song.name)
 
+            # Play the song after the interface is printed to prevent empty screens
+            # while song loads
+            if type(val) != str and val.name == "KEY_ENTER":
+                playing_song = songs[selected_song]
+                pygame.mixer.music.load(playing_song)
+                pygame.mixer.music.play(0)
+
+                playing_song_length = pygame.mixer.Sound(playing_song).get_length()
+                playing_song_start_time = time.time()
+
             if playing_song is not None and pygame.mixer.music.get_busy():
                 print("")
                 print(term.center(f"Now Playing: {playing_song.name}"))
+                print_progress_bar(
+                    term, (time.time() - playing_song_start_time) / playing_song_length
+                )
 
             val = term.inkey(timeout=3)
