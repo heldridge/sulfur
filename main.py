@@ -1,12 +1,9 @@
 import argparse
-import os
 from pathlib import Path
-import time
 
 import blessed
 
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-import pygame
+from music_player import MusicPlayer
 
 
 def print_progress_bar(term, percentage):
@@ -24,17 +21,13 @@ if __name__ == "__main__":
     parser.add_argument("music_dir", type=str, help="The directory to play music from")
     args = parser.parse_args()
 
-    pygame.init()
-
     music_dir = Path(args.music_dir)
     songs = [song for song in music_dir.iterdir() if not song.is_dir()]
 
     term = blessed.Terminal()
 
     selected_song = 0
-    playing_song = None
-    playing_song_length = None
-    playing_song_start_time = None
+    music_player = MusicPlayer()
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         val = ""
         while val.lower() != "q":
@@ -59,17 +52,11 @@ if __name__ == "__main__":
             # while song loads
             if type(val) != str and val.name == "KEY_ENTER":
                 playing_song = songs[selected_song]
-                pygame.mixer.music.load(playing_song)
-                pygame.mixer.music.play(0)
+                music_player.play(playing_song)
 
-                playing_song_length = pygame.mixer.Sound(playing_song).get_length()
-                playing_song_start_time = time.time()
-
-            if playing_song is not None and pygame.mixer.music.get_busy():
+            if music_player.is_playing():
                 print("")
                 print(term.center(f"Now Playing: {playing_song.name}"))
-                print_progress_bar(
-                    term, (time.time() - playing_song_start_time) / playing_song_length
-                )
+                print_progress_bar(term, music_player.get_playing_song_percentage())
 
             val = term.inkey(timeout=3)
