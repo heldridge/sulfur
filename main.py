@@ -58,4 +58,4 @@ if __name__ == "__main__":
                 print(term.center(f"Now Playing: {playing_song['name']}"))
                 print_progress_bar(term, music_player.get_playing_song_percentage())
 
-            val = term.inkey(timeout=3)
+            val = term.inkey(0.1)

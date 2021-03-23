@@ -3,9 +3,7 @@ import pathlib
 import time
 
 import mutagen
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-import pygame
+import vlc
 
 
 class NoSongPlayingError(Exception):
@@ -25,17 +23,21 @@ class MusicPlayer:
     """
 
     def __init__(self):
-        pygame.init()
         self.reset_playing_song()
 
     def reset_playing_song(self) -> None:
+        self.player = None
         self.playing_song: pathlib.Path = None
         self.playing_song_length: float = None
         self.playing_song_start_time: float = None
 
     def play(self, song_path: pathlib.Path):
-        pygame.mixer.music.load(song_path)
-        pygame.mixer.music.play(0)
+        if self.player is not None:
+            self.player.stop()
+
+        self.player = vlc.MediaPlayer(song_path)
+        self.player.play()
+
         self.playing_song = song_path
         mutagen_file = mutagen.File(song_path)
 
@@ -48,10 +50,12 @@ class MusicPlayer:
         self.playing_song_start_time = time.time()
 
     def is_playing(self) -> bool:
-        return pygame.mixer.music.get_busy()
+        if self.player is None:
+            return False
+        return self.player.is_playing()
 
     def get_playing_song_percentage(self) -> float:
-        if not pygame.mixer.music.get_busy():
+        if not self.player.is_playing():
             self.reset_playing_song()
             raise NoSongPlayingError("No song is currently playing")
 
