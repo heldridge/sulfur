@@ -4,7 +4,7 @@ import pathlib
 
 class MusicDatabase:
     def __init__(self, path):
-        self.allowed_suffixes = {".flac", ".mp3", ".ogg"}
+        self.allowed_suffixes = {".flac", ".mp3", ".ogg", ".wav"}
         self.songs = []
         self.load_songs(path)
 
