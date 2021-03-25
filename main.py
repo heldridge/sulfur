@@ -49,29 +49,6 @@ if __name__ == "__main__":
     music_database = MusicDatabase(args.music_dir)
     term = blessed.Terminal()
 
-    random_artists = [
-        "Alison Krauss and Union Station",
-        "Daft Punk",
-        "The Black Keys",
-        "Tony Bennett",
-        "Alice In Chains",
-        "Pink Floyd",
-        "Nelly Furtado",
-        "Gregg Allman",
-    ]
-
-    # list_pane = ListPane(term, random_artists, 40, 6)
-
-    # with term.fullscreen(), term.cbreak(), term.hidden_cursor():
-    #     val = None
-    #     while val is None or val.lower() != "q":
-    #         print(term.home + term.clear)
-    #         if val is not None:
-    #             list_pane.process_keystroke(val)
-    #         list_pane.render()
-
-    #         val = term.inkey(100)
-
     selected_song = 0
     music_player = MusicPlayer()
 
