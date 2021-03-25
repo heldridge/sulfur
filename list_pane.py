@@ -1,19 +1,29 @@
 class ListPane:
-    def __init__(self, term, items, width, height):
+    def __init__(self, term, items, width, height, position=(0, 0)):
         self.term = term
         self.items = items
         self.current_item = 0
         self.width = width
         self.height = height
         self.offset = 0
+        self.position = position
+        self.print_offset = 0
 
     def get_item_string(self, item):
         return str(item)
 
+    def print_line(self, line):
+        print(
+            self.term.move_xy(self.position[0], self.position[1] + self.print_offset)
+            + line
+        )
+        self.print_offset += 1
+
     def render(self):
+        self.print_offset = 0
         # Draw top of box
         # Use width - 2 to account for the corners
-        print(
+        self.print_line(
             "\N{BOX DRAWINGS LIGHT DOWN AND RIGHT}"
             + "\N{BOX DRAWINGS LIGHT HORIZONTAL}" * (self.width - 2)
             + "\N{BOX DRAWINGS LIGHT DOWN AND LEFT}"
@@ -38,7 +48,7 @@ class ListPane:
 
             if index + self.offset == self.current_item:
                 item_string = self.term.underline(item_string)
-            print(
+            self.print_line(
                 "\N{BOX DRAWINGS LIGHT VERTICAL}"
                 + item_string
                 + " " * right_padding
@@ -46,14 +56,14 @@ class ListPane:
             )
 
         for _ in range(0, self.height - 2 - len(self.items)):
-            print(
+            self.print_line(
                 "\N{BOX DRAWINGS LIGHT VERTICAL}"
                 + " " * (self.width - 2)
                 + "\N{BOX DRAWINGS LIGHT VERTICAL}"
             )
 
         if print_ellipsis:
-            print(
+            self.print_line(
                 "\N{BOX DRAWINGS LIGHT VERTICAL}"
                 + "..."
                 + " " * (self.width - 5)
@@ -61,7 +71,7 @@ class ListPane:
             )
 
         # Draw bottom of box
-        print(
+        self.print_line(
             "\N{BOX DRAWINGS LIGHT UP AND RIGHT}"
             + "\N{BOX DRAWINGS LIGHT HORIZONTAL}" * (self.width - 2)
             + "\N{BOX DRAWINGS LIGHT UP AND LEFT}"
