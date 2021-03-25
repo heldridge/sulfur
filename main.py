@@ -25,9 +25,9 @@ class ArtistPane:
         self.current_artist = 0
         self.music_database = music_database
 
-    def render(self):
+    def render(self, active):
         for index, artist in enumerate(music_database.get_artists()):
-            if index == self.current_artist:
+            if active and index == self.current_artist:
                 print(term.underline(artist))
             else:
                 print(artist)
@@ -59,7 +59,7 @@ class SongPane:
     def render(self, active):
         for index, song in enumerate(self.songs):
             song_string = song.title
-            if index == self.current_song:
+            if active and index == self.current_song:
                 song_string = term.underline(song.title)
 
             print(term.move_xy(50, index + 2) + song_string)
@@ -114,9 +114,9 @@ if __name__ == "__main__":
                     elif active_pane == "song":
                         song_pane.process_keystroke(val)
 
-            artist_pane.render()
+            artist_pane.render(active_pane == "artist")
             print("")
-            song_pane.render()
+            song_pane.render(active_pane == "song")
             print("")
             print(active_pane)
 
@@ -139,4 +139,4 @@ if __name__ == "__main__":
             else:
                 print(term.move_y(term.height) + "")
 
-            val = term.inkey(0.1)
+            val = term.inkey(0.2)
