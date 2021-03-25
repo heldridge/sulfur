@@ -20,29 +20,13 @@ def print_progress_bar(term, percentage):
     )
 
 
-class ArtistPane:
+class ArtistPane(ListPane):
     def __init__(self, term, music_database):
-        self.term = term
-        self.current_artist = 0
+        super().__init__(term, list(music_database.get_artists()), 50, 20, (0, 2))
         self.music_database = music_database
 
-    def render(self, active):
-        for index, artist in enumerate(music_database.get_artists()):
-            if active and index == self.current_artist:
-                print(term.underline(artist))
-            else:
-                print(artist)
-
-    def process_keystroke(self, val):
-        if val.name == "KEY_UP":
-            if self.current_artist > 0:
-                self.current_artist -= 1
-        elif val.name == "KEY_DOWN":
-            if self.current_artist < len(music_database.get_artists()) - 1:
-                self.current_artist += 1
-
     def get_current_artist(self):
-        return list(self.music_database.get_artists())[self.current_artist]
+        return list(self.music_database.get_artists())[self.current_item]
 
 
 class SongPaneOld:
