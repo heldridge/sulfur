@@ -4,6 +4,7 @@ from pathlib import Path
 
 import blessed
 
+from list_pane import ListPane
 from music_database import MusicDatabase
 from music_player import MusicPlayer
 
@@ -44,7 +45,7 @@ class ArtistPane:
         return list(self.music_database.get_artists())[self.current_artist]
 
 
-class SongPane:
+class SongPaneOld:
     def __init__(self, term, artist, songs):
         self.term = term
         self.artist = artist
@@ -87,6 +88,18 @@ class SongPane:
         return self.songs[self.current_song]
 
 
+class SongPane(ListPane):
+    def __init__(self, term, artist, songs):
+        super().__init__(term, songs, 20, 20)
+        self.artist = artist
+
+    def get_item_string(self, item):
+        return item.title
+
+    def get_current_song(self):
+        return self.items[self.current_item]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("music_dir", type=str, help="The directory to play music from")
@@ -94,6 +107,29 @@ if __name__ == "__main__":
 
     music_database = MusicDatabase(args.music_dir)
     term = blessed.Terminal()
+
+    random_artists = [
+        "Alison Krauss and Union Station",
+        "Daft Punk",
+        "The Black Keys",
+        "Tony Bennett",
+        "Alice In Chains",
+        "Pink Floyd",
+        "Nelly Furtado",
+        "Gregg Allman",
+    ]
+
+    # list_pane = ListPane(term, random_artists, 40, 6)
+
+    # with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+    #     val = None
+    #     while val is None or val.lower() != "q":
+    #         print(term.home + term.clear)
+    #         if val is not None:
+    #             list_pane.process_keystroke(val)
+    #         list_pane.render()
+
+    #         val = term.inkey(100)
 
     selected_song = 0
     music_player = MusicPlayer()
@@ -124,7 +160,7 @@ if __name__ == "__main__":
 
             artist_pane.render(active_pane == "artist")
             print("")
-            song_pane.render(active_pane == "song")
+            song_pane.render()
             print("")
             print(active_pane)
 
