@@ -29,49 +29,6 @@ class ArtistPane(ListPane):
         return list(self.music_database.get_artists())[self.current_item]
 
 
-class SongPaneOld:
-    def __init__(self, term, artist, songs):
-        self.term = term
-        self.artist = artist
-        self.songs = songs
-        self.current_song = 0
-        self.height = 15
-
-        self.songs_offset = 0
-
-    def set_songs(self, songs):
-        self.songs = songs
-        self.current_song = 0
-
-    def render(self, active):
-        for index, song in enumerate(self.songs[self.songs_offset :]):
-            song_string = song.title
-            if active and index == self.current_song - self.songs_offset:
-                song_string = term.underline(song.title)
-
-            print(term.move_xy(50, index + 2) + song_string)
-            if index >= self.height:
-                print(term.move_xy(50, index + 3) + "...")
-                break
-
-    def process_keystroke(self, val):
-        if val.name == "KEY_UP":
-            if self.current_song > 0:
-                self.current_song -= 1
-
-            if self.songs_offset > 0:
-                self.songs_offset -= 1
-        elif val.name == "KEY_DOWN":
-            if self.current_song < len(self.songs) - 1:
-                self.current_song += 1
-
-            if self.songs_offset + self.height < len(self.songs):
-                self.songs_offset += 1
-
-    def get_current_song(self):
-        return self.songs[self.current_song]
-
-
 class SongPane(ListPane):
     def __init__(self, term, artist, songs):
         super().__init__(term, songs, 50, 20, (50, 2))
