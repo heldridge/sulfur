@@ -52,14 +52,16 @@ class SongPane:
         self.current_song = 0
         self.height = 15
 
+        self.songs_offset = 0
+
     def set_songs(self, songs):
         self.songs = songs
         self.current_song = 0
 
     def render(self, active):
-        for index, song in enumerate(self.songs):
+        for index, song in enumerate(self.songs[self.songs_offset :]):
             song_string = song.title
-            if active and index == self.current_song:
+            if active and index == self.current_song - self.songs_offset:
                 song_string = term.underline(song.title)
 
             print(term.move_xy(50, index + 2) + song_string)
@@ -71,9 +73,15 @@ class SongPane:
         if val.name == "KEY_UP":
             if self.current_song > 0:
                 self.current_song -= 1
+
+            if self.songs_offset > 0:
+                self.songs_offset -= 1
         elif val.name == "KEY_DOWN":
             if self.current_song < len(self.songs) - 1:
                 self.current_song += 1
+
+            if self.songs_offset + self.height < len(self.songs):
+                self.songs_offset += 1
 
     def get_current_song(self):
         return self.songs[self.current_song]
