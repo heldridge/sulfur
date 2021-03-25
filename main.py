@@ -50,17 +50,22 @@ class SongPane:
         self.artist = artist
         self.songs = songs
         self.current_song = 0
+        self.height = 15
 
     def set_songs(self, songs):
         self.songs = songs
         self.current_song = 0
 
-    def render(self):
+    def render(self, active):
         for index, song in enumerate(self.songs):
+            song_string = song.title
             if index == self.current_song:
-                print(term.underline(song.title))
-            else:
-                print(song.title)
+                song_string = term.underline(song.title)
+
+            print(term.move_xy(50, index + 2) + song_string)
+            if index >= self.height:
+                print(term.move_xy(50, index + 3) + "...")
+                break
 
     def process_keystroke(self, val):
         if val.name == "KEY_UP":
@@ -88,8 +93,8 @@ if __name__ == "__main__":
     artist_pane = ArtistPane(term, music_database)
     song_pane = SongPane(
         term,
-        artist_pane.get_current_artist(),
-        music_database.artist_map[artist_pane.get_current_artist()],
+        "",
+        [],
     )
     active_pane = "artist"
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
