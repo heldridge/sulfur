@@ -1,11 +1,12 @@
 class ListPane:
-    def __init__(self, term, items, width, height, position=(0, 0)):
+    def __init__(self, term, items, width, height, title="", position=(0, 0)):
         self.term = term
         self.items = items
         self.current_item = 0
         self.width = width
         self.height = height
         self.offset = 0
+        self.title = title
         self.position = position
         self.print_offset = 0
 
@@ -36,7 +37,10 @@ class ListPane:
         # Use width - 2 to account for the corners
         self.print_line(
             "\N{BOX DRAWINGS LIGHT DOWN AND RIGHT}"
-            + "\N{BOX DRAWINGS LIGHT HORIZONTAL}" * (self.width - 2)
+            + "\N{BOX DRAWINGS LIGHT HORIZONTAL}"
+            + self.title
+            + "\N{BOX DRAWINGS LIGHT HORIZONTAL}"
+            * (self.width - 2 - len(self.title) - 1)
             + "\N{BOX DRAWINGS LIGHT DOWN AND LEFT}"
         )
 

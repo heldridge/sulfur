@@ -22,7 +22,9 @@ def print_progress_bar(term, percentage):
 
 class ArtistPane(ListPane):
     def __init__(self, term, music_database):
-        super().__init__(term, list(music_database.get_artists()), 50, 20, (0, 2))
+        super().__init__(
+            term, list(music_database.get_artists()), 50, 20, "Artist", (0, 2)
+        )
         self.music_database = music_database
 
     def get_current_artist(self):
@@ -31,7 +33,7 @@ class ArtistPane(ListPane):
 
 class SongPane(ListPane):
     def __init__(self, term, artist, songs):
-        super().__init__(term, songs, 50, 20, (50, 2))
+        super().__init__(term, songs, 50, 20, "Song", (50, 2))
         self.artist = artist
 
     def get_item_string(self, item):
