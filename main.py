@@ -90,7 +90,7 @@ class SongPaneOld:
 
 class SongPane(ListPane):
     def __init__(self, term, artist, songs):
-        super().__init__(term, songs, 20, 20, (50, 2))
+        super().__init__(term, songs, 50, 20, (50, 2))
         self.artist = artist
 
     def get_item_string(self, item):
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
             artist_pane.render(active_pane == "artist")
             print("")
-            song_pane.render()
+            song_pane.render(active_pane == "song")
             print("")
             print(active_pane)
 

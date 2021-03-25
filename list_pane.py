@@ -19,7 +19,7 @@ class ListPane:
         )
         self.print_offset += 1
 
-    def render(self):
+    def render(self, active):
         self.print_offset = 0
         # Draw top of box
         # Use width - 2 to account for the corners
@@ -46,8 +46,9 @@ class ListPane:
 
             right_padding = self.width - 2 - len(item_string)
 
-            if index + self.offset == self.current_item:
+            if active and index + self.offset == self.current_item:
                 item_string = self.term.underline(item_string)
+
             self.print_line(
                 "\N{BOX DRAWINGS LIGHT VERTICAL}"
                 + item_string
