@@ -19,6 +19,17 @@ class ListPane:
         )
         self.print_offset += 1
 
+    def print_interior_line(self, line):
+        right_padding = self.width - 2 - len(line)
+        self.print_line("\N{BOX DRAWINGS LIGHT VERTICAL}" + line)
+        print(
+            self.term.move_xy(
+                self.position[0] + self.width - 1,
+                self.position[1] + self.print_offset - 1,
+            )
+            + "\N{BOX DRAWINGS LIGHT VERTICAL}"
+        )
+
     def render(self, active):
         self.print_offset = 0
         # Draw top of box
@@ -49,27 +60,13 @@ class ListPane:
             if active and index + self.offset == self.current_item:
                 item_string = self.term.underline(item_string)
 
-            self.print_line(
-                "\N{BOX DRAWINGS LIGHT VERTICAL}"
-                + item_string
-                + " " * right_padding
-                + "\N{BOX DRAWINGS LIGHT VERTICAL}"
-            )
+            self.print_interior_line(item_string)
 
         for _ in range(0, self.height - 2 - len(self.items)):
-            self.print_line(
-                "\N{BOX DRAWINGS LIGHT VERTICAL}"
-                + " " * (self.width - 2)
-                + "\N{BOX DRAWINGS LIGHT VERTICAL}"
-            )
+            self.print_interior_line("")
 
         if print_ellipsis:
-            self.print_line(
-                "\N{BOX DRAWINGS LIGHT VERTICAL}"
-                + "..."
-                + " " * (self.width - 5)
-                + "\N{BOX DRAWINGS LIGHT VERTICAL}"
-            )
+            self.print_interior_line("...")
 
         # Draw bottom of box
         self.print_line(
