@@ -54,6 +54,12 @@ class MusicPlayer:
             return False
         return self.player.is_playing()
 
+    def get_playing_song_length(self):
+        return self.playing_song_length
+
+    def get_played_time(self) -> float:
+        return time.time() - self.playing_song_start_time
+
     def get_playing_song_percentage(self) -> float:
         if not self.player.is_playing():
             self.reset_playing_song()
