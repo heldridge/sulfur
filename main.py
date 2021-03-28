@@ -68,6 +68,8 @@ class Display:
             )
             self.album_list_walker.append(button)
         self.album_list_walker.set_focus(0)
+        # Move focus to album pane
+        self.panes.set_focus(1)
 
     def set_current_album(self, new_artist, new_album, button):
         self.song_list_walker.clear()
@@ -77,6 +79,8 @@ class Display:
             urwid.connect_signal(button, "click", self.play_song, user_args=[song.path])
             self.song_list_walker.append(button)
         self.song_list_walker.set_focus(0)
+        # Move focus to song pane
+        self.panes.set_focus(2)
 
     def handle_input(self, key):
         if key in ("q", "Q"):
