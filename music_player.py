@@ -1,6 +1,8 @@
 import os
 import pathlib
 import time
+import sys
+
 
 import mutagen
 import vlc
@@ -23,29 +25,24 @@ class MusicPlayer:
     """
 
     def __init__(self):
-        self.reset_playing_song()
-
-    def reset_playing_song(self) -> None:
         self.player = None
-        self.playing_song: pathlib.Path = None
-        self.playing_song_length: float = None
-        self.playing_song_start_time: float = None
 
-    def play(self, song_path: pathlib.Path):
-        if self.player is not None:
-            self.player.stop()
+    def play_playlist(self, new_playlist, index):
+        media_list = vlc.MediaList()
+        for song_path in new_playlist:
+            media_list.add_media(song_path)
+        self.play(media_list, index)
 
-        self.player = vlc.MediaPlayer(song_path)
-        self.player.play()
+    def play_next_song(self, *args):
+        self.playing_song_index += 1
+        if self.playing_song_index < len(self.playlist):
+            self.play()
 
-        self.playing_song = song_path
-        mutagen_file = mutagen.File(song_path)
+    def play(self, media_list, index):
 
-        if mutagen_file is not None:
-            self.playing_song_length = mutagen_file.info.length
-        else:
-            # TODO: don't show progress bar when song length can't be identified
-            self.playing_song_length = 999
+        self.player = vlc.MediaListPlayer()
+        self.player.set_media_list(media_list)
+        self.player.play_item_at_index(index)
 
         self.playing_song_start_time = time.time()
 
@@ -55,17 +52,7 @@ class MusicPlayer:
         return self.player.is_playing()
 
     def get_playing_song_length(self):
-        return self.playing_song_length
-
-    def get_played_time(self) -> float:
-        return time.time() - self.playing_song_start_time
-
-    def get_playing_song_percentage(self) -> float:
-        if not self.player.is_playing():
-            self.reset_playing_song()
-            raise NoSongPlayingError("No song is currently playing")
-
-        return (time.time() - self.playing_song_start_time) / self.playing_song_length
+        return self.player.get_media_player().get_length()
 
     def toggle_playing(self):
         self.player.pause()
