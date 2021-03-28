@@ -66,3 +66,6 @@ class MusicPlayer:
             raise NoSongPlayingError("No song is currently playing")
 
         return (time.time() - self.playing_song_start_time) / self.playing_song_length
+
+    def toggle_playing(self):
+        self.player.pause()
