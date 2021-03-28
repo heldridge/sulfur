@@ -16,6 +16,14 @@ class CustomProgressBar(urwid.ProgressBar):
         return ""
 
 
+class NoSpaceListBox(urwid.ListBox):
+    def keypress(self, size, key):
+        if key in {" "}:
+            # Deliberately ignore presses of the spacebar
+            return key
+        return super().keypress(size, key)
+
+
 class Display:
     def __init__(self, music_dir):
         self.music_database = MusicDatabase(music_dir)
@@ -32,17 +40,17 @@ class Display:
             artists.append(button)
 
         self.artist_pane = urwid.LineBox(
-            urwid.ListBox(urwid.SimpleFocusListWalker(artists)), title="Artist"
+            NoSpaceListBox(urwid.SimpleFocusListWalker(artists)), title="Artist"
         )
 
         # Albums Pane
         self.album_list_walker = urwid.SimpleFocusListWalker([])
-        self.album_list = urwid.ListBox(self.album_list_walker)
+        self.album_list = NoSpaceListBox(self.album_list_walker)
         self.album_pane = urwid.LineBox(self.album_list, title="Album")
 
         # Songs Pane
         self.song_list_walker = urwid.SimpleFocusListWalker([])
-        self.song_list = urwid.ListBox(self.song_list_walker)
+        self.song_list = NoSpaceListBox(self.song_list_walker)
         self.song_pane = urwid.LineBox(self.song_list, title="Song")
 
         # Progress Bar
@@ -85,7 +93,7 @@ class Display:
     def handle_input(self, key):
         if key in ("q", "Q"):
             raise urwid.ExitMainLoop()
-        if key in ("p", "P"):
+        if key in ("p", "P", " "):
             self.music_player.toggle_playing()
 
     def play_song(self, song_path, button):
