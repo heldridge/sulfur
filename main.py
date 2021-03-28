@@ -21,15 +21,24 @@ class Display:
         self.music_database = MusicDatabase(music_dir)
         self.music_player = MusicPlayer()
 
+        print(self.music_database.artist_map)
+
         artists = []
         for artist in self.music_database.get_artists():
             button = CustomButton(artist)
-            urwid.connect_signal(button, "click", self.set_current_artist, artist)
+            urwid.connect_signal(
+                button, "click", self.set_current_artist, user_args=[artist]
+            )
             artists.append(button)
 
         self.artist_pane = urwid.LineBox(
             urwid.ListBox(urwid.SimpleFocusListWalker(artists)), title="Artist"
         )
+
+        # Albums Pane
+        self.album_list_walker = urwid.SimpleFocusListWalker([])
+        self.album_list = urwid.ListBox(self.album_list_walker)
+        self.album_pane = urwid.LineBox(self.album_list, title="Album")
 
         # Songs Pane
         self.song_list_walker = urwid.SimpleFocusListWalker([])
@@ -42,7 +51,7 @@ class Display:
         )
 
         # Layout
-        self.panes = urwid.Columns([self.artist_pane, self.song_pane])
+        self.panes = urwid.Columns([self.artist_pane, self.album_pane, self.song_pane])
         self.top = urwid.Pile([("weight", 25, self.panes), progress_bar])
 
     def update_progress_bar(self, loop, user_data):
@@ -50,12 +59,22 @@ class Display:
             self.progress_bar.set_completion(self.music_player.get_played_time())
         loop.set_alarm_in(0.2, self.update_progress_bar)
 
-    def set_current_artist(self, button, new_artist):
+    def set_current_artist(self, new_artist, button):
+        self.album_list_walker.clear()
+        for album in self.music_database.artist_map[new_artist].keys():
+            button = CustomButton(album)
+            urwid.connect_signal(
+                button, "click", self.set_current_album, user_args=[new_artist, album]
+            )
+            self.album_list_walker.append(button)
+        self.album_list_walker.set_focus(0)
+
+    def set_current_album(self, new_artist, new_album, button):
         self.song_list_walker.clear()
 
-        for song in self.music_database.artist_map[new_artist]:
-            button = CustomButton(song.title)
-            urwid.connect_signal(button, "click", self.play_song, song.path)
+        for song in self.music_database.artist_map[new_artist][new_album]:
+            button = CustomButton(str(song.title))
+            urwid.connect_signal(button, "click", self.play_song, user_args=[song.path])
             self.song_list_walker.append(button)
         self.song_list_walker.set_focus(0)
 
@@ -65,7 +84,7 @@ class Display:
         if key in ("p", "P"):
             self.music_player.toggle_playing()
 
-    def play_song(self, button, song_path):
+    def play_song(self, song_path, button):
         self.music_player.play(song_path)
 
         self.progress_bar = CustomProgressBar(

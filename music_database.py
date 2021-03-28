@@ -15,9 +15,11 @@ class MusicDatabase:
     def __init__(self, path):
         self.allowed_suffixes = {".flac", ".mp3", ".ogg", ".wav"}
         self.artist_tags = {"ARTIST", "TPE1"}
+        self.album_tags = {"TALB", "ALBUM"}
         self.title_tags = {"TITLE", "TIT2"}
+
         self.songs = []
-        self.artist_map = defaultdict(list)
+        self.artist_map = defaultdict(lambda: defaultdict(list))
         self.load_songs(path)
 
     def load_songs(self, path):
@@ -39,6 +41,15 @@ class MusicDatabase:
                             song_artist = str(artist)
                             break
 
+                    song_album = "<Unknown>"
+                    for tag in self.album_tags:
+                        if tag in mutagen_file.tags:
+                            album = mutagen_file.tags[tag]
+                            if isinstance(album, list):
+                                album = album[0]
+                            song_album = str(album)
+                            break
+
                     song_title = "<Unknown>"
                     for title_tag in self.title_tags:
                         if title_tag in mutagen_file.tags:
@@ -48,7 +59,9 @@ class MusicDatabase:
                             song_title = str(title)
                             break
 
-                    self.artist_map[song_artist].append(Song(song_title, p))
+                    # self.artist_map[song_artist].append(Song(song_title, p))
+
+                    self.artist_map[song_artist][song_album].append(Song(song_title, p))
 
                     self.songs.append({"path": p, "name": file})
 
