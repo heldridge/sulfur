@@ -70,7 +70,7 @@ class Display:
 
     def set_current_artist(self, new_artist, button):
         self.album_list_walker.clear()
-        for album in self.music_database.artist_map[new_artist].keys():
+        for album in self.music_database.get_albums(new_artist):
             button = CustomButton(album)
             urwid.connect_signal(
                 button, "click", self.set_current_album, user_args=[new_artist, album]

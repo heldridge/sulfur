@@ -69,5 +69,8 @@ class MusicDatabase:
         for song in self.songs.values():
             print(song)
 
+    def get_albums(self, artist):
+        return sorted(self.artist_map[artist])
+
     def get_artists(self):
-        return self.artist_map.keys()
+        return sorted(self.artist_map.keys())
