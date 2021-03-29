@@ -69,6 +69,7 @@ class Display:
         loop.set_alarm_in(0.2, self.update_progress_bar)
 
     def set_current_artist(self, new_artist, button):
+        self.song_list_walker.clear()
         self.album_list_walker.clear()
         for album in self.music_database.get_albums(new_artist):
             button = CustomButton(album)
