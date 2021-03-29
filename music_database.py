@@ -6,9 +6,10 @@ import mutagen
 
 
 class Song:
-    def __init__(self, title, path):
+    def __init__(self, title, path, track_number):
         self.title = title
         self.path = path
+        self.track_number = track_number
 
 
 class MusicDatabase:
@@ -17,6 +18,7 @@ class MusicDatabase:
         self.artist_tags = {"ARTIST", "TPE1"}
         self.album_tags = {"TALB", "ALBUM"}
         self.title_tags = {"TITLE", "TIT2"}
+        self.track_number_tags = {"TRCK", "TRACKNUMBER"}
 
         self.songs = []
         self.artist_map = defaultdict(lambda: defaultdict(list))
@@ -59,9 +61,21 @@ class MusicDatabase:
                             song_title = str(title)
                             break
 
-                    # self.artist_map[song_artist].append(Song(song_title, p))
+                    track_number = 0
+                    for track_number_tag in self.track_number_tags:
+                        if track_number_tag in mutagen_file.tags:
+                            track_number = mutagen_file.tags[track_number_tag]
+                            if isinstance(track_number, list):
+                                track_number = track_number[0]
+                            if isinstance(track_number, mutagen.id3.TRCK):
+                                track_number = track_number.__pos__()
 
-                    self.artist_map[song_artist][song_album].append(Song(song_title, p))
+                            track_number = int(str(track_number))
+                            break
+
+                    self.artist_map[song_artist][song_album].append(
+                        Song(song_title, p, track_number)
+                    )
 
                     self.songs.append({"path": p, "name": file})
 
