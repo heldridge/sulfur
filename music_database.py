@@ -79,6 +79,10 @@ class MusicDatabase:
 
                     self.songs.append({"path": p, "name": file})
 
+        for albums in self.artist_map.values():
+            for songs in albums.values():
+                songs.sort(key=lambda song: song.track_number)
+
     def print_all(self):
         for song in self.songs.values():
             print(song)
