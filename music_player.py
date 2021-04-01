@@ -52,5 +52,25 @@ class MusicPlayer:
     def get_playing_song_length(self):
         return self.player.get_media_player().get_length()
 
+    def increase_volume(self):
+        # TODO: Store volume externally, so that you can change it even if nothing is
+        # playing
+        new_volume = 0
+        if self.player is not None:
+            current_volume = self.player.get_media_player().audio_get_volume()
+            new_volume = current_volume + 1
+            self.player.get_media_player().audio_set_volume(new_volume)
+        return new_volume
+
+    def decrease_volume(self):
+        # TODO: Store volume externally, so that you can change it even if nothing is
+        # playing
+        new_volume = 0
+        if self.player is not None:
+            current_volume = self.player.get_media_player().audio_get_volume()
+            new_volume = current_volume - 1
+            self.player.get_media_player().audio_set_volume(new_volume)
+        return new_volume
+
     def toggle_playing(self):
         self.player.pause()

@@ -115,8 +115,12 @@ class Display:
     def handle_input(self, key):
         if key in ("q", "Q"):
             raise urwid.ExitMainLoop()
-        if key in ("p", "P", " "):
+        elif key in ("p", "P", " "):
             self.music_player.toggle_playing()
+        elif key in ("=", "+"):
+            self.music_player.increase_volume()
+        elif key in ("-", "_"):
+            self.music_player.decrease_volume()
 
     def next_playlist_item(self, *args):
         self.playlist_index += 1
