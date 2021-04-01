@@ -27,20 +27,18 @@ class MusicPlayer:
     def __init__(self):
         self.player = None
 
-    def play_playlist(self, new_playlist, index):
+    def play_playlist(self, new_playlist, index, callback):
         media_list = vlc.MediaList()
         for song_path in new_playlist:
             media_list.add_media(song_path)
-        self.play(media_list, index)
+        self.play(media_list, index, callback)
 
-    def play_next_song(self, *args):
-        self.playing_song_index += 1
-        if self.playing_song_index < len(self.playlist):
-            self.play()
-
-    def play(self, media_list, index):
-
+    def play(self, media_list, index, callback):
         self.player = vlc.MediaListPlayer()
+        self.player.event_manager().event_attach(
+            vlc.EventType.MediaListPlayerNextItemSet, callback
+        )
+
         self.player.set_media_list(media_list)
         self.player.play_item_at_index(index)
 

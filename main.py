@@ -27,6 +27,7 @@ class NoSpaceListBox(urwid.ListBox):
 
 class Display:
     def __init__(self, music_dir):
+        self.playlist_index = 0
         self.music_database = MusicDatabase(music_dir)
         self.music_player = MusicPlayer()
 
@@ -57,9 +58,17 @@ class Display:
             CustomProgressBar("pg normal", "pg complete", 0, 5), "bottom"
         )
 
+        self.now_playing = urwid.Text("Wweeeee", "center")
+
         # Layout
         self.panes = urwid.Columns([self.artist_pane, self.album_pane, self.song_pane])
-        self.top = urwid.Pile([("weight", 25, self.panes), progress_bar])
+        self.top = urwid.Pile(
+            [
+                ("weight", 25, self.panes),
+                urwid.Filler(self.now_playing, "bottom"),
+                progress_bar,
+            ]
+        )
 
     def update_progress_bar(self, loop, user_data):
         if self.music_player.is_playing():
@@ -81,6 +90,8 @@ class Display:
         # Move focus to album pane
         self.panes.set_focus(1)
 
+        self.current_artist = new_artist
+
     def set_current_album(self, new_artist, new_album, button):
         self.song_list_walker.clear()
 
@@ -99,15 +110,28 @@ class Display:
         # Move focus to song pane
         self.panes.set_focus(2)
 
+        self.current_album = new_album
+
     def handle_input(self, key):
         if key in ("q", "Q"):
             raise urwid.ExitMainLoop()
         if key in ("p", "P", " "):
             self.music_player.toggle_playing()
 
+    def next_playlist_item(self, *args):
+        self.playlist_index += 1
+        self.now_playing.set_text(
+            self.music_database.artist_map[self.current_artist][self.current_album][
+                self.playlist_index
+            ].title
+        )
+
     def play_songs_at_index(self, artist, album, index, button):
+        self.playlist_index = index - 1
         self.music_player.play_playlist(
-            [song.path for song in self.music_database.artist_map[artist][album]], index
+            [song.path for song in self.music_database.artist_map[artist][album]],
+            index,
+            self.next_playlist_item,
         )
 
         while self.music_player.get_playing_song_length() == 0:
@@ -121,7 +145,7 @@ class Display:
             self.music_player.get_playing_song_length(),
         )
 
-        self.top.contents[1] = (
+        self.top.contents[2] = (
             urwid.Filler(
                 self.progress_bar,
                 "bottom",
