@@ -58,14 +58,29 @@ class Display:
             CustomProgressBar("pg normal", "pg complete", 0, 5), "bottom"
         )
 
-        self.now_playing = urwid.Text("Wweeeee", "center")
+        self.now_playing = urwid.Text("", "center")
 
+        self.volume_bar = CustomProgressBar("pg normal", "pg complete", 50, 100)
+
+        pre_progress_bar = urwid.Columns(
+            [
+                urwid.Pile(
+                    [
+                        urwid.Filler(urwid.Text("Volume", "center"), "middle"),
+                        urwid.Filler(self.volume_bar, "middle"),
+                    ]
+                ),
+                ("weight", 10, urwid.Filler(self.now_playing, "bottom")),
+                urwid.Filler(urwid.Text(""), "bottom"),
+            ]
+        )
         # Layout
         self.panes = urwid.Columns([self.artist_pane, self.album_pane, self.song_pane])
         self.top = urwid.Pile(
             [
                 ("weight", 25, self.panes),
-                urwid.Filler(self.now_playing, "bottom"),
+                # urwid.Filler(self.now_playing, "bottom"),
+                pre_progress_bar,
                 progress_bar,
             ]
         )
@@ -119,8 +134,10 @@ class Display:
             self.music_player.toggle_playing()
         elif key in ("=", "+"):
             self.music_player.increase_volume()
+            self.volume_bar.set_completion(self.music_player.get_volume())
         elif key in ("-", "_"):
             self.music_player.decrease_volume()
+            self.volume_bar.set_completion(self.music_player.get_volume())
 
     def next_playlist_item(self, *args):
         self.playlist_index += 1
