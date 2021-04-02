@@ -12,7 +12,7 @@ Otherwise, simply clone the repository and run `poetry install`.
 
 To start the player, run `python main.py <path to music directory>`.
 
-Navegation is done with the arrow keys, with `enter` used to select items.
+Navigation is done with the arrow keys, with `enter` used to select items.
 
 To pause/play music, press `space` or `p`.
 
