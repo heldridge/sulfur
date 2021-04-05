@@ -16,4 +16,6 @@ Navigation is done with the arrow keys, with `enter` used to select items.
 
 To pause/play music, press `space` or `p`.
 
-To increase the volume press `+`, and to decrease the volume press `-`. 
+To increase the volume press `+`, and to decrease the volume press `-`.
+
+To quit, press `q`
