@@ -4,7 +4,7 @@ import time
 import urwid
 
 from music_database import MusicDatabase
-from music_player import MusicPlayer
+from playlist_player import PlaylistPlayer
 
 
 class CustomButton(urwid.Button):
@@ -27,9 +27,9 @@ class NoSpaceListBox(urwid.ListBox):
 
 class Display:
     def __init__(self, music_dir):
-        self.playlist_index = 0
         self.music_database = MusicDatabase(music_dir)
-        self.music_player = MusicPlayer()
+        self.playlist_player = PlaylistPlayer()
+        self.playlist_player.register_callback(self.next_playlist_item)
 
         artists = []
         for artist in self.music_database.get_artists():
@@ -60,14 +60,25 @@ class Display:
 
         self.now_playing = urwid.Text("", "center")
 
-        self.volume_bar = CustomProgressBar("pg normal", "pg complete", 50, 100)
+        self.volume_bar = CustomProgressBar(
+            "pg normal", "pg complete", self.playlist_player.get_volume(), 100
+        )
+
+        volume = urwid.Columns(
+            [
+                ("weight", 0, urwid.Filler(urwid.Text("["), "middle")),
+                urwid.Filler(self.volume_bar, "middle"),
+                ("weight", 0, urwid.Filler(urwid.Text("]"), "middle")),
+            ]
+        )
 
         pre_progress_bar = urwid.Columns(
             [
                 urwid.Pile(
                     [
                         urwid.Filler(urwid.Text("Volume", "center"), "middle"),
-                        urwid.Filler(self.volume_bar, "middle"),
+                        # urwid.Filler(self.volume_bar, "middle"),
+                        volume,
                     ]
                 ),
                 ("weight", 10, urwid.Filler(self.now_playing, "bottom")),
@@ -85,10 +96,13 @@ class Display:
             ]
         )
 
+    def update_volume(self, *args):
+        self.volume_bar.set_completion(self.playlist_player.get_volume())
+
     def update_progress_bar(self, loop, user_data):
-        if self.music_player.is_playing():
+        if self.playlist_player.is_playing():
             self.progress_bar.set_completion(
-                self.music_player.player.get_media_player().get_time()
+                self.playlist_player.player.get_media_player().get_time()
             )
         loop.set_alarm_in(0.2, self.update_progress_bar)
 
@@ -131,31 +145,23 @@ class Display:
         if key in ("q", "Q"):
             raise urwid.ExitMainLoop()
         elif key in ("p", "P", " "):
-            self.music_player.toggle_playing()
+            self.playlist_player.toggle_playing()
         elif key in ("=", "+"):
-            self.music_player.increase_volume()
-            self.volume_bar.set_completion(self.music_player.get_volume())
+            self.playlist_player.increase_volume()
+            self.update_volume()
         elif key in ("-", "_"):
-            self.music_player.decrease_volume()
-            self.volume_bar.set_completion(self.music_player.get_volume())
+            self.playlist_player.decrease_volume()
+            self.update_volume()
 
-    def next_playlist_item(self, *args):
-        self.playlist_index += 1
-        self.now_playing.set_text(
-            self.music_database.artist_map[self.current_artist][self.current_album][
-                self.playlist_index
-            ].title
-        )
+    def next_playlist_item(self, song):
+        self.now_playing.set_text(song.title)
 
     def play_songs_at_index(self, artist, album, index, button):
-        self.playlist_index = index - 1
-        self.music_player.play_playlist(
-            [song.path for song in self.music_database.artist_map[artist][album]],
-            index,
-            self.next_playlist_item,
+        self.playlist_player.play_playlist_at_index(
+            self.music_database.artist_map[artist][album], index
         )
 
-        while self.music_player.get_playing_song_length() == 0:
+        while self.playlist_player.get_playing_song_length() == 0:
             # Wait for the song length attribute to exist
             time.sleep(0.1)
 
@@ -163,28 +169,10 @@ class Display:
             "pg normal",
             "pg complete",
             0,
-            self.music_player.get_playing_song_length(),
+            self.playlist_player.get_playing_song_length(),
         )
 
         self.top.contents[2] = (
-            urwid.Filler(
-                self.progress_bar,
-                "bottom",
-            ),
-            self.top.options(),
-        )
-
-    def play_song(self, song_path, button):
-        self.music_player.play(song_path)
-
-        self.progress_bar = CustomProgressBar(
-            "pg normal",
-            "pg complete",
-            0,
-            self.music_player.get_playing_song_length(),
-        )
-
-        self.top.contents[1] = (
             urwid.Filler(
                 self.progress_bar,
                 "bottom",
