@@ -34,7 +34,9 @@ class MusicPlayer:
         self.play(media_list, index, callback)
 
     def play(self, media_list, index, callback):
-        self.player = vlc.MediaListPlayer()
+        if self.player is None:
+            self.player = vlc.MediaListPlayer()
+        self.player.pause()
         self.player.event_manager().event_attach(
             vlc.EventType.MediaListPlayerNextItemSet, callback
         )
